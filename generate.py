@@ -142,3 +142,4 @@ if __name__ == "__main__":
         if np.abs(res1[i])<0.1:
             c_new+=1
     print(c1,c_new)
+    

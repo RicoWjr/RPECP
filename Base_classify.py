@@ -35,3 +35,4 @@ class base:
         acc = accuracy_score(X_test[1], test_res)
         
         return acc
+    
