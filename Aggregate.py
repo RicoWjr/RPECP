@@ -9,6 +9,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
+from sklearn.random_projection import GaussianRandomProjection, SparseRandomProjection
 
 class AggregatedCP:
     """ 
@@ -77,7 +78,7 @@ class AggregatedCP:
         self.dataset_sp = dataset_pair
 
     
-    def predict(self, trainset, testset, random_state = 42):
+    def predict(self, trainset, testset, random_state = 42, ran_d = None, ran_m = None):
         # Data standardization and trainset split
         scaler = StandardScaler()
         train_scale = scaler.fit_transform(trainset[0])
@@ -103,9 +104,24 @@ class AggregatedCP:
                 c_item = KNeighborsClassifier()
                 # c_item = KNeighborsClassifier(n_neighbors=100)
             
-            c_item.fit(self.dataset_sp[sp][0][0],self.dataset_sp[sp][0][1])
-            calib_scores = c_item.predict_proba(self.dataset_sp[sp][1][0])
-            test_scores = c_item.predict_proba(testset[0])
+            train = self.dataset_sp[sp][0][0]
+            calib = self.dataset_sp[sp][1][0]
+            test = testset[0]
+            if ran_d and ran_m:
+                if ran_m == "Gaussian":
+                    base_rp = GaussianRandomProjection(n_components = ran_d, random_state = random_state+sp)
+                elif ran_m == "axis":
+                    base_rp = SparseRandomProjection(n_components = ran_d, random_state = random_state+sp)
+                else:
+                    raise NotImplementedError
+            
+                train = base_rp.fit_transform(self.dataset_sp[sp][0][0])
+                calib = base_rp.fit_transform(self.dataset_sp[sp][1][0])
+                test = base_rp.fit_transform(testset[0])
+
+            c_item.fit(train,self.dataset_sp[sp][0][1])
+            calib_scores = c_item.predict_proba(calib)
+            test_scores = c_item.predict_proba(test)
 
 
             cp = np.zeros_like(test_scores)

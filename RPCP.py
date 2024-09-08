@@ -74,7 +74,7 @@ class RPEnsemble_CP:
             elif self.model == "QDA":
                 c_item = QuadraticDiscriminantAnalysis()
             elif self.model == "SVM":
-                c_item = SVC(probability=True, random_state=random_state+i)
+                c_item = SVC(probability=True, random_state = random_state+i)
             elif self.model == "KNN":
                 c_item = KNeighborsClassifier()
                 # c_item = KNeighborsClassifier(n_neighbors=100)
